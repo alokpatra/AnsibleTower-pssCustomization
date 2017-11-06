@@ -1,0 +1,45 @@
+# - name: Ping Test
+#   action: ping
+
+- name: Create a inventory in Ansible Tower Inventory
+  uri:
+    url: https://34.209.85.86/api/v2/inventories/
+    method: POST
+    user: admin
+    password: password
+    body: "{{ lookup('file','Inven6.json') }}"
+    force_basic_auth: yes
+    status_code: 201
+    body_format: json
+    validate_certs: False
+  register: Inventory-creation-result
+
+- name: Debug result of inventory creation
+  debug:
+    msg: Inventory-creation-result
+#
+# - name: Create a group in Ansible Tower Inventory
+#   uri:
+#     url: https://34.209.85.86/api/v2/groups/
+#     method: POST
+#     user: admin
+#     password: password
+#     body: "{{ lookup('file','Inven4-Group2.json') }}"
+#     force_basic_auth: yes
+#     status_code: 201
+#     body_format: json
+#     validate_certs: False
+#   register: Inventory-creation-result
+#
+# - name: Create a host in Ansible Tower Inventory
+#   uri:
+#     url: https://34.209.85.86/api/v2/hosts/
+#     method: POST
+#     user: admin
+#     password: password
+#     body: "{{ lookup('file','Inven4-Group1-Host1.json') }}"
+#     force_basic_auth: yes
+#     status_code: 201
+#     body_format: json
+#     validate_certs: False
+#   register: Host-creation-result

@@ -1,0 +1,6 @@
+---
+- hosts: ansible-tower
+  gather_facts: no
+  # vars_files:
+  roles:
+    - custom-pss-installation
