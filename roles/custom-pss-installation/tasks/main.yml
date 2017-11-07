@@ -1,45 +1,86 @@
+---
 # - name: Ping Test
 #   action: ping
 
 - name: Create a inventory in Ansible Tower Inventory
   uri:
-    url: https://34.209.85.86/api/v2/inventories/
+    url: https://{{inventory_hostname}}/api/v2/inventories/
     method: POST
     user: admin
     password: password
-    body: "{{ lookup('file','Inven6.json') }}"
+    body: "{{ lookup('file','Ansible-Tower-Inventory-01.json') }}"
     force_basic_auth: yes
     status_code: 201
     body_format: json
     validate_certs: False
-  register: Inventory-creation-result
+    return_content: yes
+  register: Inventory_creation_result
 
 - name: Debug result of inventory creation
   debug:
-    msg: Inventory-creation-result
+    var: Inventory_creation_result
+
+- name: Debug result of inventory creation
+  set_fact:
+    Inventory_Id: "{{Inventory_creation_result.json.id | int}}"
+
+- name: Debug result of inventory creation
+  debug:
+    var: Inventory_Id
+
+- name: Create a json file to load for group creation in inventory
+  template:
+    src: templates/Ansible-Tower-Inventory-01-Group1.j2
+    dest: "{{ role_path }}/files/Ansible-Tower-Inventory-01-Group1.json"
+  delegate_to: localhost
+
+- name: Create a json file to load for host creation in inventory
+  template:
+    src: templates/Ansible-Tower-Inventory-01-Group1-Host1.j2
+    dest: "{{ role_path }}/files/Ansible-Tower-Inventory-01-Group1-Host1.json"
+  delegate_to: localhost
+
+- name: Create a group in Ansible Tower Inventory
+  uri:
+    url: https://{{inventory_hostname}}/api/v2/groups/
+    method: POST
+    user: admin
+    password: password
+    body: "{{ lookup('file','Ansible-Tower-Inventory-01-Group1.json') }}"
+    force_basic_auth: yes
+    status_code: 201
+    body_format: json
+    validate_certs: False
+  register: Group_creation_result
+
+- name: Create a host in Ansible Tower Inventory
+  uri:
+    url: https://{{inventory_hostname}}/api/v2/hosts/
+    method: POST
+    user: admin
+    password: password
+    body: "{{ lookup('file','Ansible-Tower-Inventory-01-Group1-Host1.json') }}"
+    force_basic_auth: yes
+    status_code: 201
+    body_format: json
+    validate_certs: False
+  register: Host-creation-result
+
+# Testing
+# - vars:
+#     Inventory_Id: 23
+#   name: Debug result of inventory creation
+#   debug:
+#     var: Inventory_Id
 #
-# - name: Create a group in Ansible Tower Inventory
-#   uri:
-#     url: https://34.209.85.86/api/v2/groups/
-#     method: POST
-#     user: admin
-#     password: password
-#     body: "{{ lookup('file','Inven4-Group2.json') }}"
-#     force_basic_auth: yes
-#     status_code: 201
-#     body_format: json
-#     validate_certs: False
-#   register: Inventory-creation-result
-#
-# - name: Create a host in Ansible Tower Inventory
-#   uri:
-#     url: https://34.209.85.86/api/v2/hosts/
-#     method: POST
-#     user: admin
-#     password: password
-#     body: "{{ lookup('file','Inven4-Group1-Host1.json') }}"
-#     force_basic_auth: yes
-#     status_code: 201
-#     body_format: json
-#     validate_certs: False
-#   register: Host-creation-result
+# - name: Assign value to variable
+#   set_fact:
+#     Inventory_Id: 25
+
+  # hosts: 127.0.0.1
+  # connection: local
+  # tasks:
+# - template:
+#     src: templates/Inven23-Group1.j2
+#     dest: files/Inven23-Group1.json
+#   delegate_to: localhost
